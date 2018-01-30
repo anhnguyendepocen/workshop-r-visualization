@@ -1,0 +1,68 @@
+Introduction to Visualization in R
+========================================================
+author: Linh B Ngo
+date: 
+autosize: true
+font-family: 'Times New Roman'
+
+Learning Goals
+========================================================
+
+- Understand the design concepts of visualization in package `ggplot2`
+- Understand how to use specific visuals to demonstrate various data relationships
+
+Overview
+========================================================
+
+- R has its own plot generator
+- The community has created a much better visualization library: `ggplot2`
+
+Visualization Goals
+========================================================
+
+- Explore data through visual interactions
+- Generate hypothesses without performing statistics
+- Validate statistical results through visual interaction
+- Convey statistical results to audience without the complexity of statistical calculations
+- ...
+
+Data Relationships
+========================================================
+
+- Correlation
+- Deviation
+- Ranking
+- Distribution
+- Composition
+- Change
+- Groups
+
+Correlation
+========================================================
+
+
+Deviation
+========================================================
+
+Ranking
+========================================================
+
+Distribution
+========================================================
+
+Composition
+========================================================
+
+Change
+========================================================
+
+Groups
+========================================================
+
+
+Slide With Plot
+========================================================
+
+```{r, echo=FALSE}
+plot(cars)
+```

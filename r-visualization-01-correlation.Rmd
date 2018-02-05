@@ -1,0 +1,270 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Clear environment and load libraries
+
+
+```{r}
+rm(list = ls())
+
+library('dplyr')
+library('ggplot2')
+```
+
+
+Load and manipulate data
+
+```{r}
+surveys <- read.csv("data/combined.csv")
+surveys_complete <- surveys %>%
+  filter(species_id != "",         # remove missing species_id
+         !is.na(weight),           # remove missing weight
+         !is.na(hindfoot_length),  # remove missing hindfoot_length
+         sex != "")                # remove missing sex
+
+# Extract the most common species_id
+species_counts <- surveys_complete %>%
+  group_by(species_id) %>%
+  tally %>%
+  filter(n >= 50)
+
+# Only keep the most common species
+surveys_complete <- surveys_complete %>%
+  filter(species_id %in% species_counts$species_id)
+```
+
+
+## Scatter Plot
+
+The `ggplot` library works by letting users develop a plot layer by layer
+
+- First, we associate a data to be plotted with the ggplot's canvas
+
+```{r}
+ggplot(surveys_complete)
+```
+
+- Next, we specify basic aesthetics of the plot. In this case, we include information about x- and 
+y- axes. 
+
+```{r}
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length))
+```
+
+
+- To actually *draw* the plot, we specify the geometric of the plot
+
+```{r}
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length)) +
+  geom_point()
+```
+
+
+- The aesthetics of the geometric is separated from that of the data and ggplot canvas
+
+```{r}
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length)) +
+  geom_point(alpha = 0.4, aes(color = species_id))
+```
+
+- It is possible to customize the background layer (theme) and other information such as titles, axis labels, and subtitle. 
+
+```{r}
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length)) +
+  geom_point(alpha = 0.4, aes(color = species_id)) + 
+  labs(subtitle="Weight versus Hindfoot Length", 
+       y="Hindfoot Length (inches)", 
+       x="Weight (grams)", 
+       title="Scatterplot", 
+       caption = "Source: Species Survey",
+       color = "Species ID") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(colour="grey20", size=12, angle=90, hjust=.5, vjust=.5),
+        axis.text.y = element_text(colour="grey20", size=12),
+        text=element_text(size=16, family="Arial"))
+```
+
+- Be careful with graphical fonts. 
+
+```{r}
+windowsFonts(Arial=windowsFont("Arial"))
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length)) +
+  geom_point(alpha = 0.4, aes(color = species_id)) + 
+  labs(subtitle="Weight versus Hindfoot Length", 
+       y="Hindfoot Length (inches)", 
+       x="Weight (grams)", 
+       title="Scatterplot", 
+       caption = "Source: Species Survey",
+       color = "Species ID") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(colour="grey20", size=12, angle=90, hjust=.5, vjust=.5),
+        axis.text.y = element_text(colour="grey20", size=12),
+        text=element_text(size=16, family="Arial"))
+```
+
+- Make your graph portable across platforms:
+
+```{r}
+if (Sys.info()['sysname'] == 'Windows'){
+  windowsFonts(Arial=windowsFont("Arial"))
+}
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length)) +
+  geom_point(alpha = 0.4, aes(color = species_id)) + 
+  labs(subtitle="Weight versus Hindfoot Length", 
+       y="Hindfoot Length (inches)", 
+       x="Weight (grams)", 
+       title="Scatterplot", 
+       caption = "Source: Species Survey",
+       color = "Species ID") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(colour="grey20", size=12, angle=90, hjust=.5, vjust=.5),
+        axis.text.y = element_text(colour="grey20", size=12),
+        text=element_text(size=16, family="Arial"))
+```
+
+
+- Adjusting your labels: *hjust* and *vjust*:
+
+```{r}
+td <- expand.grid(
+    hjust=c(0, 0.5, 1),
+    vjust=c(0, 0.5, 1),
+    angle=c(0, 45, 90),
+    text="text"
+)
+str(td)
+```
+
+```{r}
+ggplot(td, aes(x=hjust, y=vjust)) + 
+    geom_point() +
+    geom_text(aes(label=text, angle=angle, hjust=hjust, vjust=vjust)) + 
+    facet_grid(~angle) +
+    scale_x_continuous(breaks=c(0, 0.5, 1), expand=c(0, 0.2)) +
+    scale_y_continuous(breaks=c(0, 0.5, 1), expand=c(0, 0.2))
+```
+
+
+
+- We can augment the plot with additional geometrics of various plots
+
+```{r}
+if (Sys.info()['sysname'] == 'Windows'){
+  windowsFonts(Arial=windowsFont("Arial"))
+}
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length)) +
+  geom_point(alpha = 0.4, aes(color = species_id)) + 
+  geom_smooth(method = "loess", se = F) + # adding smoothing line
+  labs(subtitle="Weight versus Hindfoot Length", 
+       y="Hindfoot Length (inches)", 
+       x="Weight (grams)", 
+       title="Scatterplot", 
+       caption = "Source: Species Survey",
+       color = "Species ID") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(colour="grey20", size=12, angle=90, hjust=.5, vjust=.5),
+        axis.text.y = element_text(colour="grey20", size=12),
+        text=element_text(size=16, family="Arial"))
+```
+
+
+
+```{r}
+library(ggalt)
+if (Sys.info()['sysname'] == 'Windows'){
+  windowsFonts(Arial=windowsFont("Arial"))
+}
+
+medium_weight_length <- surveys_complete %>%
+  filter(weight >= 15 & weight < 80 & hindfoot_length < 42 & hindfoot_length > 30)
+
+ggplot(surveys_complete, aes(x = weight, y = hindfoot_length)) +
+  geom_point(alpha = 0.4, aes(color = species_id)) + 
+  geom_smooth(method = "loess", se = F) + 
+  geom_encircle(data = medium_weight_length,
+                aes(x = weight, y = hindfoot_length), 
+                color="red", 
+                size=1, 
+                expand=0.01) +   # encircle
+  labs(subtitle="Weight versus Hindfoot Length", 
+       y="Hindfoot Length (inches)", 
+       x="Weight (grams)", 
+       title="Scatterplot", 
+       caption = "Source: Species Survey",
+       color = "Species ID") + 
+  theme_bw() +
+  theme(axis.text.x = element_text(colour="grey20", size=12, angle=90, hjust=.5, vjust=.5),
+        axis.text.y = element_text(colour="grey20", size=12),
+        text=element_text(size=16, family="Arial"))
+```
+
+
+## Jitter Plot
+
+- Is scatterplot adequate in this case?
+
+```{r}
+if (Sys.info()['sysname'] == 'Windows'){
+  windowsFonts(Arial=windowsFont("Arial"))
+}
+ggplot(surveys_complete, aes(x = genus, y = hindfoot_length)) +
+  geom_point()
+```
+
+- What can jitterplot do?
+
+```{r}
+if (Sys.info()['sysname'] == 'Windows'){
+  windowsFonts(Arial=windowsFont("Arial"))
+}
+ggplot(surveys_complete, aes(x = genus, y = hindfoot_length)) +
+  geom_jitter()
+```
+
+**Challenge**
+
+Agument the jitter plot below with the following aesthetics to improve visibility:
+- Color points by species
+- Add legend for colors
+- Turn x-axis label to 45 degree
+- Change plot font to `Times New Roman`
+
+```{r}
+if (Sys.info()['sysname'] == 'Windows'){
+  windowsFonts(Arial=windowsFont("____"))
+}
+ggplot(surveys_complete, aes(x = genus, y = hindfoot_length)) +
+  geom_jitter()
+```
+
+
+## Correlogram
+
+Quickly examine the correlation of multiple variables in the same dataframe. 
+
+```{r}
+library(ggcorrplot)
+library(fueleconomy)
+
+str(vehicles)
+vehicles_numeric <- data.frame(cyl = as.numeric(vehicles$cyl),
+                               displ = vehicles$displ,
+                               hwy = as.numeric(vehicles$hwy),
+                               cty = as.numeric(vehicles$cty))
+
+vehicles_corr <- cor(vehicles_numeric, use = 'complete.obs')
+
+ggcorrplot(vehicles_corr, hc.order = TRUE,
+           type = 'lower',
+           lab = TRUE,
+           lab_size = 3,
+           method = 'circle',
+           colors = c("tomato2", "white", "springgreen3"),
+           title='Correlogram of vehicles data',
+           ggtheme = theme_bw)
+```
+
+
+

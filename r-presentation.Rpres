@@ -8,7 +8,7 @@ font-family: 'Times New Roman'
 Learning Goals
 ========================================================
 
-- Understand the design concepts of visualization in package `ggplot2`
+- Understand the visualization concepts in package `ggplot2`
 - Understand how to use specific visuals to demonstrate various data relationships
 
 Overview
@@ -39,30 +39,49 @@ Data Relationships
 
 Correlation
 ========================================================
-
+- Examine the correlation between two or more variables
+- Scatter
+- Jitter
+- Correlogram
 
 Deviation
 ========================================================
+- Variation between variables in reference to a fixed value
+- Diverging Bars
+- Area Chart
 
 Ranking
 ========================================================
+- Compare variables
+- Ordered Bar Chart
+- Slope Chart
+- Dumbbell Plot
 
 Distribution
 ========================================================
+- How data points are distributed
+- Histogram
+- Density Plot
+- Box Plot
+- Population Pyramid
 
 Composition
 ========================================================
+- Waffle Chart
+- Pie Chart
+- Treemap
+- Bar Chart
 
 Change
 ========================================================
+- Time series data
+- Variety of Line Chart
+- Stacked Area Chart
+- Calendar Heatmap
+- Slope
+- Seasonal Plot
 
 Groups
 ========================================================
-
-
-Slide With Plot
-========================================================
-
-```{r, echo=FALSE}
-plot(cars)
-```
+- Hierarchical Dendogram
+- Clusters

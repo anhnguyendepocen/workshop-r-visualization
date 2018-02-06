@@ -11,7 +11,7 @@ rm(list = ls())
 install.packages('tidyverse')
 install.packages('ggalt')
 install.packages('ggcorrplot')
-install.packages(c('babynames','fueleconomy','nycflights13'))
+install.packages(c('babynames','fueleconomy','nasaweather','nycflights13'))
 ```
 
 

@@ -1,6 +1,6 @@
 ---
 title: "Deviation"
-output: html_notebook
+output: html_notebook 
 ---
 
 Clear environment and load libraries

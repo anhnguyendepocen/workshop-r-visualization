@@ -1,6 +1,8 @@
 ---
 title: "Setup relevant libraries"
 output: html_notebook
+editor_options: 
+  chunk_output_type: inline
 ---
 
 In this notebook, we load tidyverse, a comprehensive data analytic package, and 
@@ -11,6 +13,7 @@ rm(list = ls())
 install.packages('tidyverse')
 install.packages('ggalt')
 install.packages('ggcorrplot')
+install.packages('scales')
 install.packages(c('babynames','fueleconomy','nasaweather','nycflights13'))
 ```
 

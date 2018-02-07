@@ -1,20 +1,97 @@
 ---
-title: "R Notebook"
+title: "Composition"
 output: html_notebook
 editor_options: 
   chunk_output_type: inline
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+Clear environment and load libraries
 
 ```{r}
-plot(cars)
+rm(list = ls())
+
+library('dplyr')
+library('ggplot2')
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+Load and manipulate data
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+```{r}
+library(fueleconomy)
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+str(vehicles)
+
+vehicles_make <- as.data.frame(table(vehicles$make))
+colnames(vehicles_make) <- c('make','freq')
+
+vehicles_make <- vehicles_make %>%
+  arrange(desc(freq)) %>%
+  head(n = 10)
+```
+
+## Pie Chart
+
+There is no `geom_pie()`, but we can use `coord_polar()`, which map x or y to angular frequency. 
+
+```{r}
+ggplot(vehicles_make, aes(x = "", y=freq, fill = make)) + 
+  geom_bar(width = 1, stat = "identity") +
+  theme(axis.line = element_blank(), 
+        plot.title = element_text(hjust=0.5)) + 
+  labs(fill="make", 
+       x=NULL, 
+       y=NULL, 
+       title="Pie Chart of Vehicle Makes", 
+       caption="Source: Fuel Economy") + 
+  coord_polar(theta = "y", start=0)
+
+```
+
+## TreeMap
+
+Data preparation
+
+```{r}
+surveys <- read.csv("data/combined.csv")
+surveys_complete <- surveys %>%
+  filter(species_id != "",         # remove missing species_id
+         !is.na(weight),           # remove missing weight
+         !is.na(hindfoot_length),  # remove missing hindfoot_length
+         sex != "")                # remove missing sex
+
+# Extract the most common species_id
+species_counts <- surveys_complete %>%
+  group_by(species_id) %>%
+  tally %>%
+  filter(n >= 50)
+
+# Only keep the most common species
+surveys_complete <- surveys_complete %>%
+  filter(species_id %in% species_counts$species_id)
+
+species_categories <- surveys_complete %>%
+  group_by(genus, species) %>%
+  summarize(count = n(),
+            avg_weight = mean(weight))
+```
+
+Perform the plotting
+
+```{r}
+library(treemapify)
+library(viridis)
+
+ggplot(species_categories, aes(area = count, fill = avg_weight, label = species, subgroup = genus)) + 
+  geom_treemap() + 
+  geom_treemap_subgroup_border() + 
+  geom_treemap_subgroup_text(place = "centre", grow = T, alpha = 0.5, 
+                             colour = "black", fontface = "italic", min.size = 0) + 
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T) + 
+  scale_fill_viridis() 
+```
+
+
+
+
+
+

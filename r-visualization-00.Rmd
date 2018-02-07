@@ -8,13 +8,16 @@ editor_options:
 In this notebook, we load tidyverse, a comprehensive data analytic package, and 
 some additional data packages
 
-```{r}
+```{r, echo=TRUE}
 rm(list = ls())
 install.packages('tidyverse')
 install.packages('ggalt')
 install.packages('ggcorrplot')
 install.packages('scales')
-install.packages(c('babynames','fueleconomy','nasaweather','nycflights13'))
+install.packages('viridis')
+install.packages('treemapify')
+install.packages('ggdendro')
+install.packages(c('babynames','fueleconomy','nycflights13'))
 ```
 
 

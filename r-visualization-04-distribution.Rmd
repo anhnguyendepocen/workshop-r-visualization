@@ -1,20 +1,83 @@
 ---
-title: "R Notebook"
+title: "Distribution"
 output: html_notebook
 editor_options: 
   chunk_output_type: inline
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
 ```{r}
-plot(cars)
+rm(list = ls())
+
+library('dplyr')
+library('ggplot2')
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+Load and manipulate data
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```{r}
+library(nycflights13)
+
+str(flights)
+```
+
+## Histogram
+
+Histogram of flight distribution per carrier per month
+
+```{r}
+ggplot(flights, aes(month)) + scale_fill_brewer(palette='RdBu') + 
+  geom_bar(aes(fill=carrier), width = .5) +  # change binwidth
+  labs(title="Histogram on Categorial Variable", 
+       subtitle="Flights per Month across Carriers")  
+```
+
+```{r}
+library(viridis)
+ggplot(flights, aes(month)) + scale_fill_viridis(discrete = TRUE) + 
+ geom_bar(aes(fill=carrier), width = .5) +  # change binwidth
+  labs(title="Histogram with Auto Binning", 
+       subtitle="Flights per Month across Carriers")  
+```
+
+We can leverage package `lubridate` to extract and generate time information. 
+
+```{r}
+library(viridis)
+library(lubridate)
+
+ggplot(flights, aes(month)) + scale_fill_viridis(discrete = TRUE) + 
+  geom_bar(aes(fill=carrier), width = .5) +  # change binwidth
+  labs(title="Histogram with Auto Binning", 
+       subtitle="Flights per Month across Carriers") +
+  scale_x_continuous(breaks = seq(1:12),
+                     labels = month(seq(ISOdate(2013,1,1), by = 'month', length.out = 12), label = TRUE, abbr = TRUE))
+```
+
+
+## Density Plot
+
+Distribution of departure delay for top five carriers with the most flights out of NYC
+
+```{r}
+flights_count <- flights %>%
+  group_by(carrier) %>%
+  tally() %>%
+  arrange(desc(n))
+
+flights_select <- flights_count[c(1,8,16),]
+
+top_carriers <- flights %>%
+  filter(carrier %in% flights_select$carrier) %>%
+  filter(dep_delay < 180)
+
+ggplot(top_carriers, aes(dep_delay)) + 
+  geom_density(aes(fill=factor(carrier)), alpha=0.8) + 
+    labs(title="Density plot", 
+         subtitle="Departure Delay Grouped by Carriers",
+         caption="Source: NYC Flights 2013",
+         x="Departure Delay",
+         fill="Carriers")
+```
+
+
